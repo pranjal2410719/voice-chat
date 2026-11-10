@@ -3,8 +3,8 @@ import "./globals.css"
 import Script from "next/script"
 
 export const metadata: Metadata = {
-  title: "Voice Chat",
-  description: "Real-time AI voice chat running on your device",
+  title: "Voice Chat | Hume AI",
+  description: "Real-time speech-to-speech conversations powered by Hume AI",
 }
 
 export default function RootLayout({
