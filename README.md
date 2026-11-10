@@ -1,179 +1,67 @@
-# AI Voice Chat - 100% In-Browser
+# Voice Chat
 
-A hands-free AI voice assistant that runs entirely in your browser. Speech recognition, LLM, and text-to-speech all run locally using WebGPU - no API keys, no server, no data leaves your device. Just talk naturally and the AI responds.
+A browser-based, real-time speech-to-speech assistant powered by the Inworld Realtime API.
 
-## Live Demo
+## How it works
 
-Try it now: [HuggingFace Space](https://huggingface.co/spaces/RickRossTN/ai-voice-chat)
+- **Microphone input:** Browser captures audio through WebRTC.
+- **Speech recognition:** Inworld Realtime STT transcribes speech as part of the live session.
+- **Language model:** Inworld Realtime routes the conversation to the configured LLM.
+- **Voice response:** Inworld streams generated speech back over the same WebRTC session.
+- **Turn-taking:** Semantic VAD detects when a speaker has finished and supports interruptions.
 
-## What Makes This Different
+The browser never receives the long-lived Inworld API credential. A Next.js server route exchanges it for a short-lived session token.
 
-**Everything runs in your browser:**
-- **Speech-to-Text**: Whisper model via WebGPU/WASM
-- **Voice Activity Detection**: Silero VAD detects when you're speaking
-- **LLM**: Qwen 1.5B via WebLLM (easily swappable - see below)
-- **Text-to-Speech**: Supertonic TTS with 10 natural voices
+## Setup
 
-No audio leaves your device. No API keys needed. Just open and talk.
+1. Create an **Inworld Realtime-only** API key in the Inworld Portal.
+2. In Vercel → Project → Settings → Environment Variables, add:
 
-## Swap In Your Own LLM
+   `INWORLD_API_KEY` — the complete **Basic (Base64)** credential copied from the Inworld Portal.
 
-**The built-in LLM is just a demo.** The real value is the voice pipeline - STT, VAD, and TTS all wired up and working. Rip out the tiny in-browser model and point it at any LLM you want:
+   Add it to Production, Preview, and Development as needed. Do not add the credential to a `NEXT_PUBLIC_*` variable, commit it to Git, or paste it into chat.
 
-- **Claude, GPT-4, Gemini** - via API routes
-- **Ollama, LM Studio** - local inference servers  
-- **Any OpenAI-compatible endpoint**
+3. Redeploy the project after adding the variable.
+4. Open the app in a secure browser context (HTTPS or localhost), allow microphone access, and select **Start conversation**.
 
-It's ~10 lines of code to swap. See [Using a Different LLM](#using-a-different-llm) below.
+## Local development
 
-## Quick Start
+Create `.env.local` in the project root:
 
-```bash
-# Install dependencies
-pnpm install
-
-# Run development server
-pnpm dev
+```env
+INWORLD_API_KEY=your_complete_basic_base64_credential
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in Chrome or Edge.
-
-## What Downloads When
-
-| Asset | Size | When | Cached |
-|-------|------|------|--------|
-| Voice embeddings | ~500KB | Included in repo | ✓ Already local |
-| Whisper STT model | ~150MB | First use | ✓ IndexedDB |
-| Silero VAD model | ~2MB | First use | ✓ IndexedDB |
-| Qwen 1.5B LLM | ~900MB | First use | ✓ IndexedDB |
-| Supertonic TTS | ~50MB | First use | ✓ IndexedDB |
-
-First load downloads ~1GB of models from HuggingFace CDN. After that, everything runs offline.
-
-## Requirements
-
-- **Browser**: Chrome 113+ or Edge 113+ (WebGPU required)
-- **RAM**: ~4GB available for models
-- **Microphone**: Required for voice input
-
-Falls back to WASM if WebGPU unavailable (slower but works everywhere).
-
-## How It Works
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Browser                             │
-│                                                             │
-│  Microphone                                                 │
-│       |                                                     │
-│       v                                                     │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐ │
-│  │ Silero   │ > │ Whisper  │ > │ WebLLM   │ > │Supertonic│ │
-│  │ VAD      │   │ STT      │   │ (Qwen)   │   │ TTS      │ │
-│  └──────────┘   └──────────┘   └──────────┘   └──────────┘ │
-│       |              |              |              |        │
-│  Detects        Transcribes    Generates       Speaks      │
-│  speech         to text        response        response    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── page.tsx              # Main voice chat UI
-│   ├── layout.tsx            # App layout
-│   └── globals.css           # Styles
-├── components/ui/            # UI components
-├── hooks/
-│   ├── use-webllm.ts         # WebLLM integration
-│   └── use-tts.ts            # TTS integration
-└── lib/
-    ├── tts.ts                # TTS pipeline
-    └── splitter.ts           # Text chunking
-
-public/
-├── stt-worker-esm.js         # Whisper + VAD worker
-├── vad-processor.js          # Audio worklet
-└── voices/                   # TTS voice embeddings (bundled)
-```
-
-## Using a Different LLM
-
-This demo uses WebLLM for fully local operation. To use an external LLM instead:
-
-1. Create an API route (e.g., `src/app/api/chat/route.ts`)
-2. In `page.tsx`, find `handleLLMResponse()` and replace the WebLLM call:
-
-```typescript
-// Instead of webllm.chat(), call your API:
-const response = await fetch("/api/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ messages: conversationHistory })
-});
-const data = await response.json();
-return data.response;
-```
-
-## Tech Stack
-
-- **Framework**: Next.js 16, React 19
-- **STT**: Whisper via @huggingface/transformers
-- **VAD**: Silero VAD via ONNX Runtime
-- **LLM**: Qwen 1.5B via @mlc-ai/web-llm
-- **TTS**: Supertonic via @huggingface/transformers
-- **Styling**: Tailwind CSS v4
-
-## Voice Options
-
-10 voices bundled (5 female, 5 male):
-- F1: Calm, steady
-- F2: Bright, cheerful
-- F3: Professional
-- F4: Confident
-- F5: Gentle
-- M1: Lively, upbeat
-- M2: Deep, calm
-- M3: Authoritative
-- M4: Soft, friendly
-- M5: Warm
-
-## License
-
-MIT License - see [LICENSE](LICENSE)
-
-## Credits
-
-- [Whisper](https://github.com/openai/whisper) - OpenAI
-- [Silero VAD](https://github.com/snakers4/silero-vad) - Silero Team
-- [WebLLM](https://github.com/mlc-ai/web-llm) - MLC AI
-- [Transformers.js](https://github.com/huggingface/transformers.js) - Hugging Face
-- [Supertonic TTS](https://huggingface.co/onnx-community/Supertonic-TTS-ONNX) - Supertone
-
-
-## Hume AI real-time voice mode
-
-The app now uses Hume's Empathic Voice Interface (EVI) for live speech-to-speech conversations. The previous local Whisper, WebLLM, and Supertonic pipeline is no longer required by the main chat screen.
-
-### Required environment variables
-
-Configure both values in Vercel Project Settings → Environment Variables (Production, Preview, and Development):
-
-- `HUME_API_KEY` — Hume API key
-- `HUME_SECRET_KEY` — Hume secret key
-
-The server uses these credentials to mint a short-lived access token. Do not expose either credential in client-side code or commit them to Git.
-
-After adding or rotating credentials, redeploy the project. Start a conversation from the app and grant microphone permission when the browser asks.
-
-### Local development
-
-Create a `.env.local` file with the two variables above, then run:
+Then run:
 
 ```bash
 pnpm install
 pnpm dev
 ```
+
+Open http://localhost:3000.
+
+## Configuration
+
+The initial session uses:
+
+- LLM: `google-ai-studio/gemini-2.5-flash`
+- STT: `inworld/inworld-stt-1`
+- TTS: `inworld-tts-2-flash`
+- Voice: `Olivia`
+- Turn detection: semantic VAD, medium eagerness, interruptions enabled
+
+These defaults can be changed in `src/components/inworld-voice-chat.tsx`.
+
+## Security notes
+
+- Keep `INWORLD_API_KEY` server-side only.
+- The token route returns short-lived session tokens and disables caching.
+- The app currently has no user login or per-user rate limiting. Add those before opening the endpoint to a large public audience.
+- Realtime usage is billed by Inworld according to the models and minutes/tokens consumed.
+
+## References
+
+- [Inworld Realtime API](https://docs.inworld.ai/realtime/overview)
+- [Inworld authentication](https://docs.inworld.ai/api-reference/introduction)
+- [Configuring Realtime models](https://docs.inworld.ai/realtime/usage/using-realtime-models)
