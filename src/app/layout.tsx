@@ -1,41 +1,15 @@
-import type { Metadata } from "next"
-import "./globals.css"
-import Script from "next/script"
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Voice Chat | Hume AI",
-  description: "Real-time speech-to-speech conversations powered by Hume AI",
-}
+  title: "Voice Chat | Real-time AI",
+  description: "A real-time speech-to-speech voice assistant powered by Inworld.",
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* Suppress noisy library warnings before any modules load */}
-        <Script id="suppress-onnx" strategy="beforeInteractive">{`
-          (function() {
-            const originalWarn = console.warn;
-            const originalError = console.error;
-            const suppress = (...args) => args.some(arg => 
-              typeof arg === 'string' && (
-                arg.includes('onnxruntime') || 
-                arg.includes('VerifyEachNodeIsAssignedToAnEp') ||
-                arg.includes('session_state.cc') ||
-                arg.includes('[W:onnxruntime') ||
-                arg.includes('content-length') ||
-                arg.includes('Unknown model class')
-              )
-            );
-            console.warn = function(...args) { if (!suppress(...args)) originalWarn.apply(console, args); };
-            console.error = function(...args) { if (!suppress(...args)) originalError.apply(console, args); };
-          })();
-        `}</Script>
-      </head>
       <body>{children}</body>
     </html>
-  )
+  );
 }
