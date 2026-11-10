@@ -1,12 +1,12 @@
 {
-  "name": "irelate-voice-chat",
+  "name": "voice-chat",
   "version": "0.1.0",
-  "private": false,
-  "description": "Browser-based voice chat with local STT, pluggable LLM, and TTS",
+  "private": true,
+  "description": "A real-time browser voice assistant powered by Inworld Realtime.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/irelate/irelate-voice-chat"
+    "url": "https://github.com/pranjal2410719/voice-chat"
   },
   "scripts": {
     "dev": "next dev",
@@ -26,9 +26,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tailwind-merge": "^3.4.0",
-    "use-stick-to-bottom": "^1.1.1",
-    "@humeai/voice-react": "^0.2.14",
-    "hume": "^0.12.0"
+    "use-stick-to-bottom": "^1.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
