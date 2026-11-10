@@ -152,3 +152,28 @@ MIT License - see [LICENSE](LICENSE)
 - [WebLLM](https://github.com/mlc-ai/web-llm) - MLC AI
 - [Transformers.js](https://github.com/huggingface/transformers.js) - Hugging Face
 - [Supertonic TTS](https://huggingface.co/onnx-community/Supertonic-TTS-ONNX) - Supertone
+
+
+## Hume AI real-time voice mode
+
+The app now uses Hume's Empathic Voice Interface (EVI) for live speech-to-speech conversations. The previous local Whisper, WebLLM, and Supertonic pipeline is no longer required by the main chat screen.
+
+### Required environment variables
+
+Configure both values in Vercel Project Settings → Environment Variables (Production, Preview, and Development):
+
+- `HUME_API_KEY` — Hume API key
+- `HUME_SECRET_KEY` — Hume secret key
+
+The server uses these credentials to mint a short-lived access token. Do not expose either credential in client-side code or commit them to Git.
+
+After adding or rotating credentials, redeploy the project. Start a conversation from the app and grant microphone permission when the browser asks.
+
+### Local development
+
+Create a `.env.local` file with the two variables above, then run:
+
+```bash
+pnpm install
+pnpm dev
+```
