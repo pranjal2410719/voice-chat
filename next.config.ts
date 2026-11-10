@@ -1,11 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static export for HuggingFace Spaces
-  output: "export",
-  // Disable dev indicators that show ONNX warnings
+  // Hume EVI requires server-side token generation; static export is disabled.
   devIndicators: false,
-  // Turbopack is default in Next.js 16
   turbopack: {},
 };
 
